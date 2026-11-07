@@ -38,7 +38,7 @@
                 </div>
                 <div>
                     <h1 class="font-bold text-base tracking-tight text-white">DIGIMAP EMS ASSESSMENT</h1>
-                    <p class="text-xs text-slate-400">Auto-Suggest Profile & Monthly Activity Filter</p>
+                    <p class="text-xs text-slate-400">Store Trainer Evaluation Portal</p>
                 </div>
             </div>
             <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
@@ -49,74 +49,68 @@
 
     <main class="max-w-4xl mx-auto px-4 mt-6 space-y-6">
 
-        <!-- SETUP INPUT UTAMA -->
+        <!-- SETUP INPUT UTAMA (NAMA STAFF & FILTER BULAN) -->
         <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl space-y-4">
-            <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider flex items-center">
-                <i class="fa-solid fa-user-gear text-emerald-400 mr-2"></i> Identifikasi Staff & Jadwal Sesi
+            <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center">
+                <i class="fa-solid fa-user-gear text-emerald-400 mr-2"></i> Identifikasi Staff & Filter Riwayat
             </h2>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <!-- PILIH / KETIK NAMA STAFF -->
                 <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Nama Staff / Sales Assistant</label>
-                    <input list="staffList" id="staffInput" onchange="autofillProfile()" placeholder="Ketik atau pilih nama staff..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-emerald-500">
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-1">Nama Staff / Sales Assistant</label>
+                    <input list="staffList" id="staffInput" onchange="autofillProfile()" placeholder="Ketik atau pilih nama staff..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
                     <datalist id="staffList"></datalist>
                 </div>
 
                 <!-- FILTER BULAN UNTUK RIWAYAT -->
                 <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Filter Bulan Riwayat</label>
-                    <select id="filterBulan" onchange="updateStaffHistory()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-emerald-500">
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-1"><i class="fa-solid fa-filter text-cyan-400 mr-1"></i> Filter Bulan Riwayat</label>
+                    <select id="filterBulan" onchange="updateStaffHistory()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
                         <option value="2026-11" selected>November 2026</option>
                         <option value="2026-12">Desember 2026</option>
                         <option value="2027-01">Januari 2027</option>
                         <option value="ALL">Semua Bulan (All-Time)</option>
                     </select>
                 </div>
-
-                <!-- TANGGAL PELAKSANAAN ASESMEN -->
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Tanggal Pelaksanaan Asesmen</label>
-                    <input type="date" id="dateInput" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-bold text-emerald-400 focus:outline-none focus:border-emerald-500">
-                </div>
             </div>
 
             <!-- DETAIL PROFIL & RIWAYAT KEGIATAN -->
-            <div id="profileCard" class="hidden mt-4 p-4 rounded-xl bg-slate-950/80 border border-emerald-500/30 text-xs space-y-3">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                    <span class="font-bold text-emerald-400 text-sm"><i class="fa-solid fa-id-card mr-1.5"></i> Profil Karyawan Terdeteksi</span>
-                    <span id="pStore" class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 font-bold"></span>
+            <div id="profileCard" class="hidden mt-4 p-4 rounded-xl bg-slate-950/90 border border-emerald-500/30 text-xs space-y-3">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-800 pb-2 gap-2">
+                    <span class="font-bold text-emerald-400 text-xs flex items-center"><i class="fa-solid fa-user-check mr-1.5"></i> Profil Karyawan Terdeteksi</span>
+                    <span id="pStore" class="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-300 font-bold border border-emerald-500/20"></span>
                 </div>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-slate-300">
-                    <div><span class="text-slate-500 block">NIK:</span> <strong id="pNik">-</strong></div>
-                    <div><span class="text-slate-500 block">Posisi:</span> <strong id="pPos">-</strong></div>
-                    <div><span class="text-slate-500 block">Masa Kerja:</span> <strong id="pExp">-</strong></div>
-                    <div><span class="text-slate-500 block">Email SEED:</span> <strong id="pEmail">-</strong></div>
-                    <div><span class="text-slate-500 block">Area Manager:</span> <strong id="pAm">-</strong></div>
-                    <div><span class="text-slate-500 block">Trainer HO:</span> <strong id="pTrainer">-</strong></div>
-                    <div><span class="text-slate-500 block">Sub Region:</span> <strong id="pSubReg">-</strong></div>
-                    <div><span class="text-slate-500 block">Region:</span> <strong id="pReg">-</strong></div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-slate-300">
+                    <div><span class="text-slate-500 block text-[10px]">NIK:</span> <strong id="pNik" class="text-white">-</strong></div>
+                    <div><span class="text-slate-500 block text-[10px]">Posisi:</span> <strong id="pPos" class="text-white">-</strong></div>
+                    <div><span class="text-slate-500 block text-[10px]">Masa Kerja:</span> <strong id="pExp" class="text-white">-</strong></div>
+                    <div><span class="text-slate-500 block text-[10px]">Email SEED:</span> <strong id="pEmail" class="text-white truncate block">-</strong></div>
+                    <div><span class="text-slate-500 block text-[10px]">Area Manager:</span> <strong id="pAm" class="text-white">-</strong></div>
+                    <div><span class="text-slate-500 block text-[10px]">Trainer HO:</span> <strong id="pTrainer" class="text-white">-</strong></div>
+                    <div><span class="text-slate-500 block text-[10px]">Sub Region:</span> <strong id="pSubReg" class="text-white">-</strong></div>
+                    <div><span class="text-slate-500 block text-[10px]">Region:</span> <strong id="pReg" class="text-white">-</strong></div>
                 </div>
 
                 <!-- RIWAYAT TOPIK SESUAI BULAN YANG DIPILIH -->
-                <div class="pt-2 border-t border-slate-800">
-                    <span class="text-cyan-400 font-semibold block mb-1">Riwayat Topik EMS yang Diikuti pada Bulan Terpilih:</span>
+                <div class="pt-2.5 border-t border-slate-800">
+                    <span class="text-cyan-400 font-semibold block mb-1.5 text-[11px]">Riwayat Topik EMS yang Diikuti pada Bulan Terpilih:</span>
                     <div id="historyTopics" class="flex flex-wrap gap-1.5 text-[11px] text-slate-400">
-                        <span class="italic">Memuat riwayat...</span>
+                        <span class="italic text-slate-500">Memuat riwayat...</span>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- PILIH TOPIK MODUL EMS -->
+        <!-- PANEL 3 KOLOM: TOPIK | TANGGAL | NAMA ASESOR -->
         <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
+                <!-- PILIH TOPIK LOB -->
                 <div>
-                    <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider">Topik Modul EMS & Soal Mandatory</h2>
-                    <p class="text-xs text-slate-400">Pilih topik materi yang akan diuji pada sesi ini.</p>
-                </div>
-                <div class="w-full sm:w-64">
-                    <select id="lobModeSelect" onchange="filterQuestions()" class="w-full bg-slate-950 border border-emerald-500/50 rounded-xl px-3.5 py-2.5 text-sm text-emerald-400 font-semibold focus:outline-none focus:border-emerald-400">
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center">
+                        <i class="fa-solid fa-layer-group text-emerald-400 mr-1.5"></i> Topik / LOB Modul
+                    </label>
+                    <select id="lobModeSelect" onchange="filterQuestions()" class="w-full bg-slate-950 border border-emerald-500/50 rounded-xl px-3.5 py-2.5 text-xs text-emerald-400 font-semibold focus:outline-none focus:border-emerald-400">
                         <option value="iPhone">📱 Demo iPhone</option>
                         <option value="iPad">📟 Demo iPad</option>
                         <option value="Mac">💻 Demo Mac</option>
@@ -125,23 +119,44 @@
                         <option value="Latihan Bertanya">❓ Latihan Bertanya</option>
                     </select>
                 </div>
+
+                <!-- TANGGAL PELAKSANAAN ASESMEN -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center">
+                        <i class="fa-solid fa-calendar-days text-cyan-400 mr-1.5"></i> Tanggal Asesmen
+                    </label>
+                    <input type="date" id="dateInput" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-bold text-cyan-400 focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <!-- NAMA ASESOR (AUTO-SUGGEST MASTER & VALIDASI) -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center">
+                        <i class="fa-solid fa-user-tie text-emerald-400 mr-1.5"></i> Assesor Name
+                    </label>
+                    <input list="staffList" id="assessorInput" placeholder="Ketik atau pilih nama asesor..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
+                </div>
             </div>
         </section>
 
         <!-- DAFTAR PERTANYAAN MANDATORY -->
         <section class="space-y-4">
             <div class="flex justify-between items-center px-1">
-                <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider flex items-center">
+                <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center">
                     <i class="fa-solid fa-list-check text-emerald-400 mr-2"></i> Daftar Pertanyaan Mandatory (Skor 1 / 0)
                 </h2>
-                <span class="text-xs text-slate-400 font-bold" id="progressIndicator">0 / 0 Terisi</span>
+                <span class="text-xs text-cyan-400 font-bold bg-cyan-500/10 px-2.5 py-1 rounded-lg border border-cyan-500/20" id="progressIndicator">0 / 0 Terisi</span>
             </div>
             <div id="questionsContainer" class="space-y-4"></div>
         </section>
 
-        <!-- SUBMIT ACTION -->
-        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl">
-            <button onclick="submitAssessment()" class="w-full bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-bold py-3.5 px-6 rounded-xl transition shadow-lg shadow-emerald-500/20 flex items-center justify-center space-x-2 cursor-pointer">
+        <!-- CATATAN COACHING & SUBMIT ACTION -->
+        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-2xl space-y-4">
+            <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1.5">Coaching Note / Comment (Opsional)</label>
+                <input type="text" id="coachingNoteInput" placeholder="Tulis catatan atau saran pengembangan untuk staff..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
+            </div>
+
+            <button onclick="submitAssessment()" class="w-full bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-bold py-3.5 px-6 rounded-xl transition shadow-lg shadow-emerald-500/20 flex items-center justify-center space-x-2 cursor-pointer text-xs">
                 <i class="fa-solid fa-paper-plane"></i>
                 <span>Submit Hasil Asesmen ke Google Sheet</span>
             </button>
@@ -150,8 +165,7 @@
     </main>
 
     <script>
-        // URL Web App Google Apps Script terbaru Anda
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw1ii4iJ0_ZrjBS2xOXci5XI13cOAxQhniHuJaYeukxcU1COImCjsF4rY67p4Wdj0yp/exec";
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyL5GamCkFdigNQr7GiygC0Rh_i4KkSTUrtY6ipmf4E9PFwYP1q3XdEKJ0OiT9qtYxdRQ/exec";
 
         let masterEmployees = [];
         let masterBankFitur = [];
@@ -188,16 +202,30 @@
                             coaching: row[5]
                         }));
 
-                        // Parsing Riwayat Submit (Berdasarkan indeks urutan header baru:
-                        // Timestamp(0) | Region(1) | Store(2) | Trainer Name(3) | Participants Name(4) | Participants Role(5) | Topic / LOB(6)
+                        // Parsing Riwayat Submit (Timestamp(0) | Store(1) | Assesor Name(2) | Participants Name(3) | Topic / LOB(4) | Score(5) | Note(6) | Status(7))
                         if(data.submitHistory && data.submitHistory.length > 1) {
-                            submitHistoryData = data.submitHistory.slice(1).map(row => ({
-                                rawDate: row[0],
-                                dateStr: row[0] ? new Date(row[0]).toISOString().slice(0, 7) : "", // Format YYYY-MM
-                                store: row[2],
-                                name: row[4],
-                                topic: row[6]
-                            }));
+                            submitHistoryData = data.submitHistory.slice(1).map(row => {
+                                let rawTimestamp = row[0];
+                                let dateString = "";
+                                if (rawTimestamp) {
+                                    let d = new Date(rawTimestamp);
+                                    if (!isNaN(d.getTime())) {
+                                        let year = d.getFullYear();
+                                        let month = String(d.getMonth() + 1).padStart(2, '0');
+                                        dateString = `${year}-${month}`;
+                                    } else if (typeof rawTimestamp === 'string' && rawTimestamp.length >= 7) {
+                                        dateString = rawTimestamp.slice(0, 7);
+                                    }
+                                }
+                                return {
+                                    dateStr: dateString,
+                                    store: row[1],
+                                    assessor: row[2],
+                                    name: row[3] ? String(row[3]).trim() : "",
+                                    topic: row[4] ? String(row[4]).trim() : "",
+                                    status: row[7] ? String(row[7]).trim() : "PASSED"
+                                };
+                            });
                         }
 
                         filterQuestions();
@@ -217,7 +245,6 @@
             const list = document.getElementById('staffList');
             list.innerHTML = "";
             masterEmployees.forEach(emp => {
-                // Header Master: Store(0), Nama(1), Positions(5)
                 if(emp[1]) {
                     let opt = document.createElement('option');
                     opt.value = emp[1]; 
@@ -229,7 +256,6 @@
 
         function autofillProfile() {
             const nameVal = document.getElementById('staffInput').value.trim();
-            // Header Master: Store(0), Nama(1), NIK(2), Work Experience(3), SEED Email(4), Positions(5), RH(6), AM(7), Type Store(8), Trainer HO(9), Sub Region(10), Region(11)
             const emp = masterEmployees.find(e => e[1] && e[1].toLowerCase() === nameVal.toLowerCase());
             const card = document.getElementById('profileCard');
 
@@ -261,7 +287,7 @@
         function updateStaffHistory() {
             if (!selectedStaffProfile) return;
             const histContainer = document.getElementById('historyTopics');
-            const selectedMonth = document.getElementById('filterBulan').value; // Format YYYY-MM atau "ALL"
+            const selectedMonth = document.getElementById('filterBulan').value;
 
             const staffHistory = submitHistoryData.filter(h => {
                 const matchName = h.name.toLowerCase() === selectedStaffProfile.name.toLowerCase();
@@ -269,12 +295,36 @@
                 return matchName && h.dateStr === selectedMonth;
             });
 
-            const uniqueTopics = [...new Set(staffHistory.map(h => h.topic))].filter(Boolean);
+            if (staffHistory.length > 0) {
+                const uniqueTopicsMap = {};
+                staffHistory.forEach(h => {
+                    if (!uniqueTopicsMap[h.topic]) {
+                        uniqueTopicsMap[h.topic] = [];
+                    }
+                    uniqueTopicsMap[h.topic].push(h.status);
+                });
 
-            if (uniqueTopics.length > 0) {
-                histContainer.innerHTML = uniqueTopics.map(t => `<span class="px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">${t}</span>`).join(' ');
+                let htmlBadges = '';
+                for (let topic in uniqueTopicsMap) {
+                    let statuses = uniqueTopicsMap[topic];
+                    let isPassed = statuses.every(s => s === "PASSED");
+                    let badgeStyle = isPassed 
+                        ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/30" 
+                        : "bg-purple-500/10 text-purple-300 border-purple-500/30";
+                    let icon = isPassed ? "fa-circle-check text-emerald-400" : "fa-triangle-exclamation text-purple-400";
+                    let statusLabel = isPassed ? "PASSED" : "RETRAINING";
+
+                    htmlBadges += `
+                        <div class="inline-flex items-center space-x-2 px-2.5 py-1 rounded-lg border ${badgeStyle} text-[11px] font-semibold">
+                            <i class="fa-solid ${icon}"></i>
+                            <span>${topic}</span>
+                            <span class="text-[9px] px-1.5 py-0.2 rounded bg-slate-900/80 font-bold">${statusLabel}</span>
+                        </div>
+                    `;
+                }
+                histContainer.innerHTML = `<div class="flex flex-wrap gap-2 w-full pt-1">${htmlBadges}</div>`;
             } else {
-                histContainer.innerHTML = `<span class="italic text-slate-500">Belum ada riwayat topik pada bulan ini.</span>`;
+                histContainer.innerHTML = `<span class="italic text-slate-500">Belum ada riwayat topik asesmen pada bulan ini.</span>`;
             }
         }
 
@@ -302,8 +352,8 @@
                     <div class="flex justify-between items-center mb-2">
                         <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">${q.category} (${q.id})</span>
                         <div class="space-x-2">
-                            <button type="button" onclick="setScore('${q.id}', 1)" id="btn_${q.id}_1" class="px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${currentScore === 1 ? 'bg-emerald-500 text-slate-950 ring-2 ring-emerald-400' : 'bg-slate-950 text-slate-300 border border-slate-800'}">1 (Bisa)</button>
-                            <button type="button" onclick="setScore('${q.id}', 0)" id="btn_${q.id}_0" class="px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${currentScore === 0 ? 'bg-purple-600 text-white ring-2 ring-purple-400' : 'bg-slate-950 text-slate-300 border border-slate-800'}">0 (Belum)</button>
+                            <button type="button" onclick="setScore('${q.id}', 1)" id="btn_${q.id}_1" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${currentScore === 1 ? 'bg-emerald-500 text-slate-950 ring-2 ring-emerald-400' : 'bg-slate-950 text-slate-300 border border-slate-800'}">1 (Bisa)</button>
+                            <button type="button" onclick="setScore('${q.id}', 0)" id="btn_${q.id}_0" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${currentScore === 0 ? 'bg-purple-600 text-white ring-2 ring-purple-400' : 'bg-slate-950 text-slate-300 border border-slate-800'}">0 (Belum)</button>
                         </div>
                     </div>
                     <p class="text-xs text-slate-300 font-semibold mb-1">${q.title}</p>
@@ -322,11 +372,11 @@
             const btn1 = document.getElementById(`btn_${qId}_1`);
             const btn0 = document.getElementById(`btn_${qId}_0`);
             if (val === 1) {
-                btn1.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer bg-emerald-500 text-slate-950 ring-2 ring-emerald-400";
-                btn0.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer bg-slate-950 text-slate-300 border border-slate-800";
+                btn1.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer bg-emerald-500 text-slate-950 ring-2 ring-emerald-400";
+                btn0.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer bg-slate-950 text-slate-300 border border-slate-800";
             } else {
-                btn0.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer bg-purple-600 text-white ring-2 ring-purple-400";
-                btn1.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer bg-slate-950 text-slate-300 border border-slate-800";
+                btn0.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer bg-purple-600 text-white ring-2 ring-purple-400";
+                btn1.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer bg-slate-950 text-slate-300 border border-slate-800";
             }
             updateSummary();
         }
@@ -339,33 +389,43 @@
 
         function submitAssessment() {
             if (!selectedStaffProfile) {
-                alert("Mohon pilih Nama Staff terlebih dahulu dari daftar auto-suggest!");
+                alert("⚠️ WARNING: Nama Staff tidak valid atau belum dipilih dari daftar Master!");
+                document.getElementById('staffInput').focus();
                 return;
             }
+
+            const assessorVal = document.getElementById('assessorInput').value.trim();
+            const isValidAssessor = masterEmployees.some(e => e[1] && e[1].toLowerCase() === assessorVal.toLowerCase());
+            
+            if (!isValidAssessor) {
+                alert("⚠️ WARNING: Nama Assesor Name tidak ditemukan di data Master! Mohon pilih dari daftar.");
+                document.getElementById('assessorInput').focus();
+                return;
+            }
+
             if (Object.keys(scores).length < activeQuestions.length) {
-                alert("Mohon selesaikan seluruh pertanyaan mandatory terlebih dahulu!");
+                alert("⚠️ WARNING: Mohon selesaikan seluruh pertanyaan mandatory terlebih dahulu!");
                 return;
             }
 
             const submitDate = document.getElementById('dateInput').value;
             const topic = document.getElementById('lobModeSelect').value;
-            const evaluator = "Store Trainer HO";
+            const coachingNote = document.getElementById('coachingNoteInput').value.trim() || "-";
 
             const payload = {
                 submitDate: submitDate,
-                region: selectedStaffProfile.region,
                 store: selectedStaffProfile.store,
-                evaluator: evaluator,
+                evaluator: assessorVal,
                 name: selectedStaffProfile.name,
-                positions: selectedStaffProfile.positions,
                 topic: topic,
+                coachingNote: coachingNote,
                 scores: scores
             };
 
             const overlay = document.getElementById('loadingOverlay');
             overlay.classList.remove('hidden');
             document.getElementById('loadingTitle').innerText = "Mengirim ke Google Sheet...";
-            document.getElementById('loadingDesc').innerText = "Menyimpan hasil asesmen ke tab Submit.";
+            document.getElementById('loadingDesc').innerText = "Menyimpan hasil ringkasan ke tab Submit.";
             document.getElementById('progressBar').style.width = "80%";
 
             fetch(WEB_APP_URL, {
@@ -378,7 +438,7 @@
                 document.getElementById('progressBar').style.width = "100%";
                 setTimeout(() => {
                     overlay.classList.add('hidden');
-                    alert(`Berhasil! Asesmen untuk ${selectedStaffProfile.name} (${topic}) berhasil direkam ke Google Sheet.`);
+                    alert(`Berhasil! Asesmen untuk ${selectedStaffProfile.name} (${topic}) berhasil direkam.`);
                     location.reload();
                 }, 600);
             })
