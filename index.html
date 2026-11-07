@@ -9,25 +9,25 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        
+        /* Animasi Apple Smooth Fade-In & Neon Pulse */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes neonPulse {
+            0%, 100% { box-shadow: 0 0 15px rgba(16, 185, 129, 0.15); }
+            50% { box-shadow: 0 0 30px rgba(16, 185, 129, 0.35); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .neon-box-glow {
+            animation: neonPulse 3s infinite ease-in-out;
+        }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen pb-16 selection:bg-emerald-500 selection:text-slate-950">
-
-    <!-- LOADING OVERLAY -->
-    <div id="loadingOverlay" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex flex-col items-center justify-center hidden">
-        <div class="w-72 bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl text-center space-y-4">
-            <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto animate-spin">
-                <i class="fa-solid fa-spinner text-xl"></i>
-            </div>
-            <div>
-                <h3 class="font-bold text-sm text-white mb-1" id="loadingTitle">Memproses Data...</h3>
-                <p class="text-xs text-slate-400" id="loadingDesc">Sinkronisasi Google Sheet (Submit & Master).</p>
-            </div>
-            <div class="w-full bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-800">
-                <div id="progressBar" class="bg-gradient-to-r from-emerald-500 to-cyan-500 h-full w-0 transition-all duration-300"></div>
-            </div>
-        </div>
-    </div>
+<body class="bg-slate-950 text-slate-100 min-h-screen pb-16 selection:bg-emerald-500 selection:text-slate-950 opacity-0 transition-opacity duration-700" id="mainBody">
 
     <!-- HEADER -->
     <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40 px-4 py-3">
@@ -41,13 +41,19 @@
                     <p class="text-xs text-slate-400">Store Trainer Evaluation Portal</p>
                 </div>
             </div>
-            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                <span class="w-1.5 h-1.5 mr-1.5 bg-emerald-400 rounded-full animate-pulse"></span> Connected to GAS
-            </span>
+            <div class="flex items-center space-x-2">
+                <!-- Status Sinkronisasi Halus di Header -->
+                <div id="syncStatus" class="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 neon-box-glow">
+                    <i class="fa-solid fa-rotate fa-spin mr-1.5 text-[10px]"></i> Syncing Sheet...
+                </div>
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <span class="w-1.5 h-1.5 mr-1.5 bg-emerald-400 rounded-full animate-pulse"></span> Connected to GAS
+                </span>
+            </div>
         </div>
     </header>
 
-    <main class="max-w-4xl mx-auto px-4 mt-6 space-y-6">
+    <main class="max-w-4xl mx-auto px-4 mt-6 space-y-6 animate-fade-in">
 
         <!-- SETUP INPUT UTAMA (NAMA STAFF & FILTER BULAN) -->
         <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl space-y-4">
@@ -59,14 +65,14 @@
                 <!-- PILIH / KETIK NAMA STAFF -->
                 <div>
                     <label class="block text-[11px] font-semibold text-slate-400 mb-1">Nama Staff / Sales Assistant</label>
-                    <input list="staffList" id="staffInput" onchange="autofillProfile()" placeholder="Ketik atau pilih nama staff..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
+                    <input list="staffList" id="staffInput" onchange="autofillProfile()" placeholder="Ketik atau pilih nama staff..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 transition-all">
                     <datalist id="staffList"></datalist>
                 </div>
 
                 <!-- FILTER BULAN UNTUK RIWAYAT -->
                 <div>
                     <label class="block text-[11px] font-semibold text-slate-400 mb-1"><i class="fa-solid fa-filter text-cyan-400 mr-1"></i> Filter Bulan Riwayat</label>
-                    <select id="filterBulan" onchange="updateStaffHistory()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
+                    <select id="filterBulan" onchange="updateStaffHistory()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 transition-all">
                         <option value="2026-11" selected>November 2026</option>
                         <option value="2026-12">Desember 2026</option>
                         <option value="2027-01">Januari 2027</option>
@@ -76,7 +82,7 @@
             </div>
 
             <!-- DETAIL PROFIL & RIWAYAT KEGIATAN -->
-            <div id="profileCard" class="hidden mt-4 p-4 rounded-xl bg-slate-950/90 border border-emerald-500/30 text-xs space-y-3">
+            <div id="profileCard" class="hidden mt-4 p-4 rounded-xl bg-slate-950/90 border border-emerald-500/30 text-xs space-y-3 animate-fade-in">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-800 pb-2 gap-2">
                     <span class="font-bold text-emerald-400 text-xs flex items-center"><i class="fa-solid fa-user-check mr-1.5"></i> Profil Karyawan Terdeteksi</span>
                     <span id="pStore" class="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-300 font-bold border border-emerald-500/20"></span>
@@ -110,8 +116,8 @@
                     <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center">
                         <i class="fa-solid fa-layer-group text-emerald-400 mr-1.5"></i> Topik / LOB Modul
                     </label>
-                    <select id="lobModeSelect" onchange="filterQuestions()" class="w-full bg-slate-950 border border-emerald-500/50 rounded-xl px-3.5 py-2.5 text-xs text-emerald-400 font-semibold focus:outline-none focus:border-emerald-400">
-                        <option value="iPhone">📱 Demo iPhone</option>
+                    <select id="lobModeSelect" onchange="filterQuestions()" class="w-full bg-slate-950 border border-emerald-500/50 rounded-xl px-3.5 py-2.5 text-xs text-emerald-400 font-semibold focus:outline-none focus:border-emerald-400 transition-all">
+                        <option value="iPhone">📱 Demo iPhone (18 Pro / Duo)</option>
                         <option value="iPad">📟 Demo iPad</option>
                         <option value="Mac">💻 Demo Mac</option>
                         <option value="Apple Watch">⌚ Demo Apple Watch</option>
@@ -125,7 +131,7 @@
                     <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center">
                         <i class="fa-solid fa-calendar-days text-cyan-400 mr-1.5"></i> Tanggal Asesmen
                     </label>
-                    <input type="date" id="dateInput" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-bold text-cyan-400 focus:outline-none focus:border-emerald-500">
+                    <input type="date" id="dateInput" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-bold text-cyan-400 focus:outline-none focus:border-emerald-500 transition-all">
                 </div>
 
                 <!-- NAMA ASESOR (AUTO-SUGGEST MASTER & VALIDASI) -->
@@ -133,7 +139,7 @@
                     <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center">
                         <i class="fa-solid fa-user-tie text-emerald-400 mr-1.5"></i> Assesor Name
                     </label>
-                    <input list="staffList" id="assessorInput" placeholder="Ketik atau pilih nama asesor..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
+                    <input list="staffList" id="assessorInput" placeholder="Ketik atau pilih nama asesor..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 transition-all">
                 </div>
             </div>
         </section>
@@ -153,7 +159,7 @@
         <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-2xl space-y-4">
             <div>
                 <label class="block text-xs font-semibold text-slate-300 mb-1.5">Coaching Note / Comment (Opsional)</label>
-                <input type="text" id="coachingNoteInput" placeholder="Tulis catatan atau saran pengembangan untuk staff..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
+                <input type="text" id="coachingNoteInput" placeholder="Tulis catatan atau saran pengembangan untuk staff..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 transition-all">
             </div>
 
             <button onclick="submitAssessment()" class="w-full bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-bold py-3.5 px-6 rounded-xl transition shadow-lg shadow-emerald-500/20 flex items-center justify-center space-x-2 cursor-pointer text-xs">
@@ -165,7 +171,6 @@
     </main>
 
     <script>
-        // URL Web App Google Apps Script Terbaru
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz6mXSxYCUbdjEGJwiNuG8GjX04b3zHwgBZUkNVHXRow1zD2PfnLaNryC9RiNh6QJKm7A/exec";
 
         let masterEmployees = [];
@@ -177,15 +182,14 @@
 
         window.onload = function() {
             document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
+            // Munculkan bodi dengan efek smooth fade-in
+            document.getElementById('mainBody').classList.remove('opacity-0');
             fetchDataFromSheet();
         };
 
         function fetchDataFromSheet() {
-            const overlay = document.getElementById('loadingOverlay');
-            overlay.classList.remove('hidden');
-            document.getElementById('loadingTitle').innerText = "Memuat Data Master...";
-            document.getElementById('loadingDesc').innerText = "Mengambil data dari Google Sheet.";
-            document.getElementById('progressBar').style.width = "50%";
+            const syncBadge = document.getElementById('syncStatus');
+            syncBadge.classList.remove('hidden');
 
             fetch(WEB_APP_URL, {
                 method: "GET",
@@ -206,7 +210,6 @@
                         coaching: row[5]
                     }));
 
-                    // Parsing Riwayat Submit (Timestamp(0) | Store(1) | Assesor Name(2) | Participants Name(3) | Topic / LOB(4) | Score(5) | Note(6) | Status(7))
                     if(data.submitHistory && data.submitHistory.length > 1) {
                         submitHistoryData = data.submitHistory.slice(1).map(row => {
                             let rawTimestamp = row[0];
@@ -236,12 +239,12 @@
                 } else {
                     alert("Gagal memuat data: " + data.message);
                 }
-                overlay.classList.add('hidden');
+                syncBadge.classList.add('hidden');
             })
             .catch(error => {
                 console.error("Error:", error);
+                syncBadge.classList.add('hidden');
                 alert("Terjadi kesalahan koneksi ke Google Sheet.");
-                overlay.classList.add('hidden');
             });
         }
 
@@ -352,7 +355,7 @@
             activeQuestions.forEach(q => {
                 const currentScore = scores[q.id];
                 html += `
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg transition-all hover:border-slate-700">
                     <div class="flex justify-between items-center mb-2">
                         <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">${q.category} (${q.id})</span>
                         <div class="space-x-2">
@@ -423,14 +426,12 @@
                 name: selectedStaffProfile.name,
                 topic: topic,
                 coachingNote: coachingNote,
-        scores: scores
+                scores: scores
             };
 
-            const overlay = document.getElementById('loadingOverlay');
-            overlay.classList.remove('hidden');
-            document.getElementById('loadingTitle').innerText = "Mengirim ke Google Sheet...";
-            document.getElementById('loadingDesc').innerText = "Menyimpan hasil ringkasan ke tab Submit.";
-            document.getElementById('progressBar').style.width = "80%";
+            const syncBadge = document.getElementById('syncStatus');
+            syncBadge.innerHTML = `<i class="fa-solid fa-cloud-arrow-up fa-bounce mr-1.5"></i> Sending Data...`;
+            syncBadge.classList.remove('hidden');
 
             fetch(WEB_APP_URL, {
                 method: "POST",
@@ -439,16 +440,15 @@
                 body: JSON.stringify(payload)
             })
             .then(() => {
-                document.getElementById('progressBar').style.width = "100%";
                 setTimeout(() => {
-                    overlay.classList.add('hidden');
+                    syncBadge.classList.add('hidden');
                     alert(`Berhasil! Asesmen untuk ${selectedStaffProfile.name} (${topic}) berhasil direkam.`);
                     location.reload();
-                }, 600);
+                }, 500);
             })
             .catch(error => {
                 console.error("Error:", error);
-                overlay.classList.add('hidden');
+                syncBadge.classList.add('hidden');
                 alert("Gagal mengirim data ke Google Sheet. Periksa koneksi Anda.");
             });
         }
