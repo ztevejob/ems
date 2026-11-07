@@ -165,7 +165,8 @@
     </main>
 
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyL5GamCkFdigNQr7GiygC0Rh_i4KkSTUrtY6ipmf4E9PFwYP1q3XdEKJ0OiT9qtYxdRQ/exec";
+        // URL Web App Google Apps Script Terbaru
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz6mXSxYCUbdjEGJwiNuG8GjX04b3zHwgBZUkNVHXRow1zD2PfnLaNryC9RiNh6QJKm7A/exec";
 
         let masterEmployees = [];
         let masterBankFitur = [];
@@ -186,59 +187,62 @@
             document.getElementById('loadingDesc').innerText = "Mengambil data dari Google Sheet.";
             document.getElementById('progressBar').style.width = "50%";
 
-            fetch(WEB_APP_URL)
-                .then(response => response.json())
-                .then(data => {
-                    if(data.status === "success") {
-                        masterEmployees = data.master.slice(1);
-                        populateStaffDropdown();
+            fetch(WEB_APP_URL, {
+                method: "GET",
+                redirect: "follow"
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.status === "success") {
+                    masterEmployees = data.master.slice(1);
+                    populateStaffDropdown();
 
-                        masterBankFitur = data.bankFitur.slice(1).map(row => ({
-                            id: row[0],
-                            category: row[1],
-                            title: row[2],
-                            prompt: row[3],
-                            benefit: row[4],
-                            coaching: row[5]
-                        }));
+                    masterBankFitur = data.bankFitur.slice(1).map(row => ({
+                        id: row[0],
+                        category: row[1],
+                        title: row[2],
+                        prompt: row[3],
+                        benefit: row[4],
+                        coaching: row[5]
+                    }));
 
-                        // Parsing Riwayat Submit (Timestamp(0) | Store(1) | Assesor Name(2) | Participants Name(3) | Topic / LOB(4) | Score(5) | Note(6) | Status(7))
-                        if(data.submitHistory && data.submitHistory.length > 1) {
-                            submitHistoryData = data.submitHistory.slice(1).map(row => {
-                                let rawTimestamp = row[0];
-                                let dateString = "";
-                                if (rawTimestamp) {
-                                    let d = new Date(rawTimestamp);
-                                    if (!isNaN(d.getTime())) {
-                                        let year = d.getFullYear();
-                                        let month = String(d.getMonth() + 1).padStart(2, '0');
-                                        dateString = `${year}-${month}`;
-                                    } else if (typeof rawTimestamp === 'string' && rawTimestamp.length >= 7) {
-                                        dateString = rawTimestamp.slice(0, 7);
-                                    }
+                    // Parsing Riwayat Submit (Timestamp(0) | Store(1) | Assesor Name(2) | Participants Name(3) | Topic / LOB(4) | Score(5) | Note(6) | Status(7))
+                    if(data.submitHistory && data.submitHistory.length > 1) {
+                        submitHistoryData = data.submitHistory.slice(1).map(row => {
+                            let rawTimestamp = row[0];
+                            let dateString = "";
+                            if (rawTimestamp) {
+                                let d = new Date(rawTimestamp);
+                                if (!isNaN(d.getTime())) {
+                                    let year = d.getFullYear();
+                                    let month = String(d.getMonth() + 1).padStart(2, '0');
+                                    dateString = `${year}-${month}`;
+                                } else if (typeof rawTimestamp === 'string' && rawTimestamp.length >= 7) {
+                                    dateString = rawTimestamp.slice(0, 7);
                                 }
-                                return {
-                                    dateStr: dateString,
-                                    store: row[1],
-                                    assessor: row[2],
-                                    name: row[3] ? String(row[3]).trim() : "",
-                                    topic: row[4] ? String(row[4]).trim() : "",
-                                    status: row[7] ? String(row[7]).trim() : "PASSED"
-                                };
-                            });
-                        }
-
-                        filterQuestions();
-                    } else {
-                        alert("Gagal memuat data: " + data.message);
+                            }
+                            return {
+                                dateStr: dateString,
+                                store: row[1],
+                                assessor: row[2],
+                                name: row[3] ? String(row[3]).trim() : "",
+                                topic: row[4] ? String(row[4]).trim() : "",
+                                status: row[7] ? String(row[7]).trim() : "PASSED"
+                            };
+                        });
                     }
-                    overlay.classList.add('hidden');
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                    alert("Terjadi kesalahan koneksi ke Google Sheet.");
-                    overlay.classList.add('hidden');
-                });
+
+                    filterQuestions();
+                } else {
+                    alert("Gagal memuat data: " + data.message);
+                }
+                overlay.classList.add('hidden');
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("Terjadi kesalahan koneksi ke Google Sheet.");
+                overlay.classList.add('hidden');
+            });
         }
 
         function populateStaffDropdown() {
@@ -419,7 +423,7 @@
                 name: selectedStaffProfile.name,
                 topic: topic,
                 coachingNote: coachingNote,
-                scores: scores
+        scores: scores
             };
 
             const overlay = document.getElementById('loadingOverlay');
