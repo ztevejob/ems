@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digimap EMS Assessment & Profile Sync</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen pb-16 selection:bg-emerald-500 selection:text-slate-950">
+
+    <!-- LOADING OVERLAY -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex flex-col items-center justify-center hidden">
+        <div class="w-72 bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl text-center space-y-4">
+            <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto animate-spin">
+                <i class="fa-solid fa-spinner text-xl"></i>
+            </div>
+            <div>
+                <h3 class="font-bold text-sm text-white mb-1" id="loadingTitle">Memproses Data...</h3>
+                <p class="text-xs text-slate-400" id="loadingDesc">Sinkronisasi Google Sheet (Submit & Master).</p>
+            </div>
+            <div class="w-full bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-800">
+                <div id="progressBar" class="bg-gradient-to-r from-emerald-500 to-cyan-500 h-full w-0 transition-all duration-300"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40 px-4 py-3">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                    <i class="fa-solid fa-graduation-cap text-slate-950 font-bold text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-base tracking-tight text-white">DIGIMAP EMS ASSESSMENT</h1>
+                    <p class="text-xs text-slate-400">Auto-Suggest Profile & Monthly Activity Filter</p>
+                </div>
+            </div>
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <span class="w-1.5 h-1.5 mr-1.5 bg-emerald-400 rounded-full animate-pulse"></span> Connected to GAS
+            </span>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 mt-6 space-y-6">
+
+        <!-- SETUP INPUT UTAMA -->
+        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl space-y-4">
+            <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider flex items-center">
+                <i class="fa-solid fa-user-gear text-emerald-400 mr-2"></i> Identifikasi Staff & Jadwal Sesi
+            </h2>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <!-- PILIH / KETIK NAMA STAFF -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Nama Staff / Sales Assistant</label>
+                    <input list="staffList" id="staffInput" onchange="autofillProfile()" placeholder="Ketik atau pilih nama staff..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-emerald-500">
+                    <datalist id="staffList"></datalist>
+                </div>
+
+                <!-- FILTER BULAN UNTUK RIWAYAT -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Filter Bulan Riwayat</label>
+                    <select id="filterBulan" onchange="updateStaffHistory()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-emerald-500">
+                        <option value="2026-11" selected>November 2026</option>
+                        <option value="2026-12">Desember 2026</option>
+                        <option value="2027-01">Januari 2027</option>
+                        <option value="ALL">Semua Bulan (All-Time)</option>
+                    </select>
+                </div>
+
+                <!-- TANGGAL PELAKSANAAN ASESMEN -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Tanggal Pelaksanaan Asesmen</label>
+                    <input type="date" id="dateInput" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-bold text-emerald-400 focus:outline-none focus:border-emerald-500">
+                </div>
+            </div>
+
+            <!-- DETAIL PROFIL & RIWAYAT KEGIATAN -->
+            <div id="profileCard" class="hidden mt-4 p-4 rounded-xl bg-slate-950/80 border border-emerald-500/30 text-xs space-y-3">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                    <span class="font-bold text-emerald-400 text-sm"><i class="fa-solid fa-id-card mr-1.5"></i> Profil Karyawan Terdeteksi</span>
+                    <span id="pStore" class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 font-bold"></span>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-slate-300">
+                    <div><span class="text-slate-500 block">NIK:</span> <strong id="pNik">-</strong></div>
+                    <div><span class="text-slate-500 block">Posisi:</span> <strong id="pPos">-</strong></div>
+                    <div><span class="text-slate-500 block">Masa Kerja:</span> <strong id="pExp">-</strong></div>
+                    <div><span class="text-slate-500 block">Email SEED:</span> <strong id="pEmail">-</strong></div>
+                    <div><span class="text-slate-500 block">Area Manager:</span> <strong id="pAm">-</strong></div>
+                    <div><span class="text-slate-500 block">Trainer HO:</span> <strong id="pTrainer">-</strong></div>
+                    <div><span class="text-slate-500 block">Sub Region:</span> <strong id="pSubReg">-</strong></div>
+                    <div><span class="text-slate-500 block">Region:</span> <strong id="pReg">-</strong></div>
+                </div>
+
+                <!-- RIWAYAT TOPIK SESUAI BULAN YANG DIPILIH -->
+                <div class="pt-2 border-t border-slate-800">
+                    <span class="text-cyan-400 font-semibold block mb-1">Riwayat Topik EMS yang Diikuti pada Bulan Terpilih:</span>
+                    <div id="historyTopics" class="flex flex-wrap gap-1.5 text-[11px] text-slate-400">
+                        <span class="italic">Memuat riwayat...</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PILIH TOPIK MODUL EMS -->
+        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div>
+                    <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider">Topik Modul EMS & Soal Mandatory</h2>
+                    <p class="text-xs text-slate-400">Pilih topik materi yang akan diuji pada sesi ini.</p>
+                </div>
+                <div class="w-full sm:w-64">
+                    <select id="lobModeSelect" onchange="filterQuestions()" class="w-full bg-slate-950 border border-emerald-500/50 rounded-xl px-3.5 py-2.5 text-sm text-emerald-400 font-semibold focus:outline-none focus:border-emerald-400">
+                        <option value="iPhone">📱 Demo iPhone</option>
+                        <option value="iPad">📟 Demo iPad</option>
+                        <option value="Mac">💻 Demo Mac</option>
+                        <option value="Apple Watch">⌚ Demo Apple Watch</option>
+                        <option value="Aksesoris">🎧 Demo Aksesoris</option>
+                        <option value="Latihan Bertanya">❓ Latihan Bertanya</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- DAFTAR PERTANYAAN MANDATORY -->
+        <section class="space-y-4">
+            <div class="flex justify-between items-center px-1">
+                <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider flex items-center">
+                    <i class="fa-solid fa-list-check text-emerald-400 mr-2"></i> Daftar Pertanyaan Mandatory (Skor 1 / 0)
+                </h2>
+                <span class="text-xs text-slate-400 font-bold" id="progressIndicator">0 / 0 Terisi</span>
+            </div>
+            <div id="questionsContainer" class="space-y-4"></div>
+        </section>
+
+        <!-- SUBMIT ACTION -->
+        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl">
+            <button onclick="submitAssessment()" class="w-full bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-bold py-3.5 px-6 rounded-xl transition shadow-lg shadow-emerald-500/20 flex items-center justify-center space-x-2 cursor-pointer">
+                <i class="fa-solid fa-paper-plane"></i>
+                <span>Submit Hasil Asesmen ke Google Sheet</span>
+            </button>
+        </section>
+
+    </main>
+
+    <script>
+        // URL Web App Google Apps Script terbaru Anda
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw1ii4iJ0_ZrjBS2xOXci5XI13cOAxQhniHuJaYeukxcU1COImCjsF4rY67p4Wdj0yp/exec";
+
+        let masterEmployees = [];
+        let masterBankFitur = [];
+        let submitHistoryData = [];
+        let selectedStaffProfile = null;
+        let scores = {};
+        let activeQuestions = [];
+
+        window.onload = function() {
+            document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
+            fetchDataFromSheet();
+        };
+
+        function fetchDataFromSheet() {
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.classList.remove('hidden');
+            document.getElementById('loadingTitle').innerText = "Memuat Data Master...";
+            document.getElementById('loadingDesc').innerText = "Mengambil data dari Google Sheet.";
+            document.getElementById('progressBar').style.width = "50%";
+
+            fetch(WEB_APP_URL)
+                .then(response => response.json())
+                .then(data => {
+                    if(data.status === "success") {
+                        masterEmployees = data.master.slice(1);
+                        populateStaffDropdown();
+
+                        masterBankFitur = data.bankFitur.slice(1).map(row => ({
+                            id: row[0],
+                            category: row[1],
+                            title: row[2],
+                            prompt: row[3],
+                            benefit: row[4],
+                            coaching: row[5]
+                        }));
+
+                        // Parsing Riwayat Submit (Berdasarkan indeks urutan header baru:
+                        // Timestamp(0) | Region(1) | Store(2) | Trainer Name(3) | Participants Name(4) | Participants Role(5) | Topic / LOB(6)
+                        if(data.submitHistory && data.submitHistory.length > 1) {
+                            submitHistoryData = data.submitHistory.slice(1).map(row => ({
+                                rawDate: row[0],
+                                dateStr: row[0] ? new Date(row[0]).toISOString().slice(0, 7) : "", // Format YYYY-MM
+                                store: row[2],
+                                name: row[4],
+                                topic: row[6]
+                            }));
+                        }
+
+                        filterQuestions();
+                    } else {
+                        alert("Gagal memuat data: " + data.message);
+                    }
+                    overlay.classList.add('hidden');
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("Terjadi kesalahan koneksi ke Google Sheet.");
+                    overlay.classList.add('hidden');
+                });
+        }
+
+        function populateStaffDropdown() {
+            const list = document.getElementById('staffList');
+            list.innerHTML = "";
+            masterEmployees.forEach(emp => {
+                // Header Master: Store(0), Nama(1), Positions(5)
+                if(emp[1]) {
+                    let opt = document.createElement('option');
+                    opt.value = emp[1]; 
+                    opt.textContent = `${emp[1]} — Toko: ${emp[0]} (${emp[5] || 'Staff'})`;
+                    list.appendChild(opt);
+                }
+            });
+        }
+
+        function autofillProfile() {
+            const nameVal = document.getElementById('staffInput').value.trim();
+            // Header Master: Store(0), Nama(1), NIK(2), Work Experience(3), SEED Email(4), Positions(5), RH(6), AM(7), Type Store(8), Trainer HO(9), Sub Region(10), Region(11)
+            const emp = masterEmployees.find(e => e[1] && e[1].toLowerCase() === nameVal.toLowerCase());
+            const card = document.getElementById('profileCard');
+
+            if (emp) {
+                selectedStaffProfile = {
+                    store: emp[0], name: emp[1], nik: emp[2], workExp: emp[3], email: emp[4],
+                    positions: emp[5], rh: emp[6], am: emp[7], typeStore: emp[8], trainerHo: emp[9],
+                    subRegion: emp[10], region: emp[11]
+                };
+
+                document.getElementById('pStore').innerText = `${emp[0]} (${emp[11] || '-'})`;
+                document.getElementById('pNik').innerText = emp[2] || '-';
+                document.getElementById('pPos').innerText = emp[5] || '-';
+                document.getElementById('pExp').innerText = emp[3] || '-';
+                document.getElementById('pEmail').innerText = emp[4] || '-';
+                document.getElementById('pAm').innerText = emp[7] || '-';
+                document.getElementById('pTrainer').innerText = emp[9] || '-';
+                document.getElementById('pSubReg').innerText = emp[10] || '-';
+                document.getElementById('pReg').innerText = emp[11] || '-';
+                
+                card.classList.remove('hidden');
+                updateStaffHistory();
+            } else {
+                card.classList.add('hidden');
+                selectedStaffProfile = null;
+            }
+        }
+
+        function updateStaffHistory() {
+            if (!selectedStaffProfile) return;
+            const histContainer = document.getElementById('historyTopics');
+            const selectedMonth = document.getElementById('filterBulan').value; // Format YYYY-MM atau "ALL"
+
+            const staffHistory = submitHistoryData.filter(h => {
+                const matchName = h.name.toLowerCase() === selectedStaffProfile.name.toLowerCase();
+                if (selectedMonth === "ALL") return matchName;
+                return matchName && h.dateStr === selectedMonth;
+            });
+
+            const uniqueTopics = [...new Set(staffHistory.map(h => h.topic))].filter(Boolean);
+
+            if (uniqueTopics.length > 0) {
+                histContainer.innerHTML = uniqueTopics.map(t => `<span class="px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">${t}</span>`).join(' ');
+            } else {
+                histContainer.innerHTML = `<span class="italic text-slate-500">Belum ada riwayat topik pada bulan ini.</span>`;
+            }
+        }
+
+        function filterQuestions() {
+            const mode = document.getElementById('lobModeSelect').value;
+            activeQuestions = masterBankFitur.filter(q => q.category.toLowerCase() === mode.toLowerCase());
+            scores = {};
+            renderQuestions();
+            updateSummary();
+        }
+
+        function renderQuestions() {
+            const container = document.getElementById('questionsContainer');
+            let html = '';
+
+            if (activeQuestions.length === 0) {
+                container.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs bg-slate-900 rounded-xl border border-slate-800">Belum ada pertanyaan mandatory untuk topik ini di Bank Fitur.</div>`;
+                return;
+            }
+
+            activeQuestions.forEach(q => {
+                const currentScore = scores[q.id];
+                html += `
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">${q.category} (${q.id})</span>
+                        <div class="space-x-2">
+                            <button type="button" onclick="setScore('${q.id}', 1)" id="btn_${q.id}_1" class="px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${currentScore === 1 ? 'bg-emerald-500 text-slate-950 ring-2 ring-emerald-400' : 'bg-slate-950 text-slate-300 border border-slate-800'}">1 (Bisa)</button>
+                            <button type="button" onclick="setScore('${q.id}', 0)" id="btn_${q.id}_0" class="px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${currentScore === 0 ? 'bg-purple-600 text-white ring-2 ring-purple-400' : 'bg-slate-950 text-slate-300 border border-slate-800'}">0 (Belum)</button>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-300 font-semibold mb-1">${q.title}</p>
+                    <p class="text-xs text-slate-400 mb-2"><strong>Prompt ST:</strong> ${q.prompt}</p>
+                    <div class="p-2.5 rounded-lg bg-slate-950/60 border border-slate-800 text-[11px] text-slate-400 space-y-1">
+                        <div><span class="text-emerald-400 font-bold">Key Benefit:</span> ${q.benefit}</div>
+                        <div><span class="text-purple-400 font-bold">Coaching:</span> ${q.coaching}</div>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function setScore(qId, val) {
+            scores[qId] = val;
+            const btn1 = document.getElementById(`btn_${qId}_1`);
+            const btn0 = document.getElementById(`btn_${qId}_0`);
+            if (val === 1) {
+                btn1.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer bg-emerald-500 text-slate-950 ring-2 ring-emerald-400";
+                btn0.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer bg-slate-950 text-slate-300 border border-slate-800";
+            } else {
+                btn0.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer bg-purple-600 text-white ring-2 ring-purple-400";
+                btn1.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer bg-slate-950 text-slate-300 border border-slate-800";
+            }
+            updateSummary();
+        }
+
+        function updateSummary() {
+            const total = activeQuestions.length;
+            const answered = Object.keys(scores).length;
+            document.getElementById('progressIndicator').innerText = `${answered} / ${total} Terisi`;
+        }
+
+        function submitAssessment() {
+            if (!selectedStaffProfile) {
+                alert("Mohon pilih Nama Staff terlebih dahulu dari daftar auto-suggest!");
+                return;
+            }
+            if (Object.keys(scores).length < activeQuestions.length) {
+                alert("Mohon selesaikan seluruh pertanyaan mandatory terlebih dahulu!");
+                return;
+            }
+
+            const submitDate = document.getElementById('dateInput').value;
+            const topic = document.getElementById('lobModeSelect').value;
+            const evaluator = "Store Trainer HO";
+
+            const payload = {
+                submitDate: submitDate,
+                region: selectedStaffProfile.region,
+                store: selectedStaffProfile.store,
+                evaluator: evaluator,
+                name: selectedStaffProfile.name,
+                positions: selectedStaffProfile.positions,
+                topic: topic,
+                scores: scores
+            };
+
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.classList.remove('hidden');
+            document.getElementById('loadingTitle').innerText = "Mengirim ke Google Sheet...";
+            document.getElementById('loadingDesc').innerText = "Menyimpan hasil asesmen ke tab Submit.";
+            document.getElementById('progressBar').style.width = "80%";
+
+            fetch(WEB_APP_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify(payload)
+            })
+            .then(() => {
+                document.getElementById('progressBar').style.width = "100%";
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                    alert(`Berhasil! Asesmen untuk ${selectedStaffProfile.name} (${topic}) berhasil direkam ke Google Sheet.`);
+                    location.reload();
+                }, 600);
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                overlay.classList.add('hidden');
+                alert("Gagal mengirim data ke Google Sheet. Periksa koneksi Anda.");
+            });
+        }
+    </script>
+</body>
+</html>
